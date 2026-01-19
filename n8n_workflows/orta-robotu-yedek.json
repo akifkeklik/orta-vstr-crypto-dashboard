@@ -1,0 +1,171 @@
+{
+  "name": "ORTA workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a91ab852-7ef8-4019-980b-d8bade27e6ce",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=orta-chain&price_change_percentage=1h,24h,7d,30d,1y,200d",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e2b769cc-6ae5-49be-a8ce-6205eff37511",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of items) {\n  const coin = item.json;\n  const coinName = coin.name;\n  const currentPrice = coin.current_price;\n\n  // 1 SAATLİK VERİ\n  if (coin.price_change_percentage_1h_in_currency !== undefined) {\n    results.push({\n      json: {\n        coin: coinName,\n        fiyat: currentPrice,\n        sure: \"1 Saat\",\n        degisim: coin.price_change_percentage_1h_in_currency,\n        content: `Son 1 saat içinde fiyatta %${Number(coin.price_change_percentage_1h_in_currency).toFixed(2)} oranında bir değişim gözlemlendi. Kısa vadeli dalgalanma analizi.`\n      }\n    });\n  }\n\n  // 24 SAATLİK VERİ\n  if (coin.price_change_percentage_24h_in_currency !== undefined) {\n    results.push({\n      json: {\n        coin: coinName,\n        fiyat: currentPrice,\n        sure: \"24 Saat\",\n        degisim: coin.price_change_percentage_24h_in_currency,\n        content: `Piyasa son 24 saatte %${Number(coin.price_change_percentage_24h_in_currency).toFixed(2)} değişim gösterdi. Günlük trendin yönünü anlamak için önemli bir veri.`\n      }\n    });\n  }\n\n  // 7 GÜNLÜK VERİ\n  if (coin.price_change_percentage_7d_in_currency !== undefined) {\n    results.push({\n      json: {\n        coin: coinName,\n        fiyat: currentPrice,\n        sure: \"7 Gün\",\n        degisim: coin.price_change_percentage_7d_in_currency,\n        content: `Haftalık bazda %${Number(coin.price_change_percentage_7d_in_currency).toFixed(2)} oranında hareketlilik mevcut. Orta vadeli trend takibi için kritik.`\n      }\n    });\n  }\n\n  // 30 GÜNLÜK VERİ\n  if (coin.price_change_percentage_30d_in_currency !== undefined) {\n    results.push({\n      json: {\n        coin: coinName,\n        fiyat: currentPrice,\n        sure: \"30 Gün\",\n        degisim: coin.price_change_percentage_30d_in_currency,\n        content: `Aylık kapanışa doğru %${Number(coin.price_change_percentage_30d_in_currency).toFixed(2)} değişim var. Genel piyasa hissiyatını yansıtıyor.`\n      }\n    });\n  }\n\n  // 6 AYLIK (200 GÜN) VERİ - YENİ EKLENDİ!\n  if (coin.price_change_percentage_200d_in_currency !== undefined) {\n    results.push({\n      json: {\n        coin: coinName,\n        fiyat: currentPrice,\n        sure: \"6 Ay\",\n        degisim: coin.price_change_percentage_200d_in_currency,\n        content: `Son 6 aylık geniş periyotta %${Number(coin.price_change_percentage_200d_in_currency).toFixed(2)} oranında değişim görüldü. Uzun vade yatırımcısı için trend dönüşüm sinyali olabilir.`\n      }\n    });\n  }\n\n  // 1 YILLIK VERİ\n  if (coin.price_change_percentage_1y_in_currency !== undefined) {\n    results.push({\n      json: {\n        coin: coinName,\n        fiyat: currentPrice,\n        sure: \"1 Yıl\",\n        degisim: coin.price_change_percentage_1y_in_currency,\n        content: `Yıllık bazda %${Number(coin.price_change_percentage_1y_in_currency).toFixed(2)} değişim. Makro ekonomik döngü ve uzun vadeli yatırım performansı göstergesi.`\n      }\n    });\n  }\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "8dbe0c60-d137-4db5-bcf5-783bc308812a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Önceki kutudan gelen 5 parça veriyi alıyoruz\nconst items = $input.all();\n\n// Havalı borsa yorumları havuzu\nconst pozitifYorumlar = [\n  \"Boğalar piyasada! Yükseliş trendi yatırımcısını güldürüyor.\",\n  \"Güçlü alım sinyalleri var, grafikler yeşile boyandı.\",\n  \"Direnç noktası kırıldı, yukarı yönlü ivme devam edebilir.\",\n  \"Yatırımcı güveni tazelendi, pozitif hava hakim.\"\n];\n\nconst negatifYorumlar = [\n  \"Ayılar sahnede, satış baskısı hissediliyor.\",\n  \"Kar realizasyonu başladı, grafikte geri çekilme var.\",\n  \"Piyasa kararsız, düşüş trendi risk oluşturuyor.\",\n  \"Destek seviyelerine dikkat, aşağı yönlü hareket gözleniyor.\"\n];\n\nconst notrYorumlar = [\n  \"Piyasa yatay seyrediyor, fırtına öncesi sessizlik olabilir.\",\n  \"Kararsızlık hakim, belirgin bir yön tayini bekleniyor.\",\n  \"Hacim düşük, fiyatlar dar bir bantta sıkıştı.\"\n];\n\n// Her satır için mantıklı ama rastgele bir yorum seç\nreturn items.map(item => {\n  // CoinGecko'dan gelen değişim oranını al\n  const degisim = item.json.degisim; \n  let yorum = \"\";\n  \n  // Rastgele seçim fonksiyonu\n  const rastgeleSec = (liste) => liste[Math.floor(Math.random() * liste.length)];\n\n  // Mantık: Yüzdeye bak, uygun listeden rastgele cümle seç\n  if (degisim > 0.5) {\n    yorum = rastgeleSec(pozitifYorumlar);\n  } else if (degisim < -0.5) {\n    yorum = rastgeleSec(negatifYorumlar);\n  } else {\n    yorum = rastgeleSec(notrYorumlar);\n  }\n  \n  // Verinin içine 'content' adıyla ekle (AI yapmış gibi)\n  item.json.content = yorum;\n  \n  return item;\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "a6d58fc7-bb3d-4553-a646-c10b4b51ac0e",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "tableId": "kripto_analiz",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "coin_adi",
+              "fieldValue": "=ORTA"
+            },
+            {
+              "fieldId": "fiyat",
+              "fieldValue": "={{ $json.fiyat }}"
+            },
+            {
+              "fieldId": "zaman_araligii",
+              "fieldValue": "={{ $json.sure }}"
+            },
+            {
+              "fieldId": "degisim_yuzdesi",
+              "fieldValue": "={{ $json.degisim }}"
+            },
+            {
+              "fieldId": "ai_yorumu",
+              "fieldValue": "={{ $json.content }}"
+            },
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        832,
+        0
+      ],
+      "id": "02c04fde-8610-4087-b2e7-50f68d0debaa",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ZU2zXPzBWvshX5ry",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "f745919f-9a11-49e3-bbc9-008127301b3c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4a4fdf03fc6bbb9bdd74ed8d1a9ef221ae37a311f1ff32d3297697152412c071"
+  },
+  "id": "efgjPuoxlwxAkegIK3Q1h",
+  "tags": []
+}

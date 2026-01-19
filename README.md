@@ -1,36 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Vestra & Orta Crypto Analytics Dashboard
 
-## Getting Started
+Next.js, Supabase ve n8n kullanılarak geliştirilmiş, gerçek zamanlı veri akışı sağlayan modern kripto analiz paneli.
 
-First, run the development server:
+## 🛠️ Teknolojiler (Tech Stack)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Frontend:** Next.js 14 (App Router), Tailwind CSS
+- **Charts:** Recharts (Dinamik Grafikler)
+- **Database:** Supabase (PostgreSQL - Realtime)
+- **Automation:** n8n (Otomatik Veri Çekme Botları)
+- **Data Source:** CoinGecko API
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🌟 Özellikler
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Canlı İzleme:** VSTR ve ORTA coinleri için anlık fiyat takibi.
+- **Otomasyon:** n8n workflow'ları ile 30 dakikada bir otomatik veri güncellemesi.
+- **Görselleştirme:** Geçmiş verileri analiz eden interaktif alan grafikleri.
+- **Responsive:** Mobil ve masaüstü uyumlu modern UI.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Kurulum
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1.  Repo'yu klonlayın.
+2.  `npm install` ile paketleri yükleyin.
+3.  `.env.local` dosyasını oluşturup Supabase anahtarlarını girin.
+4.  `npm run dev` ile başlatın.
