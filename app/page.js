@@ -2,8 +2,9 @@
 
 import { createClient } from '@supabase/supabase-js';
 import {
+  Activity, AlertCircle,
   Clock, Layers, Minus, Moon, RefreshCcw, Search,
-  Server, Sun, TrendingDown, TrendingUp, X, Activity, AlertCircle
+  Server, Sun, TrendingDown, TrendingUp, X
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -92,15 +93,11 @@ export default function Dashboard() {
     const { data: raw } = await supabase.from('kripto_analiz').select('*').order('id', { ascending: false });
     
     if (raw) {
-       // --- VERİ DÜZELTME ---
-       // 1. coin_adi boşsa 'ORTA' yap.
-       // 2. VSTR ise büyük harf yap.
        const normalizedData = raw.map(item => ({
            ...item,
            coin_adi: (item.coin_adi || 'ORTA').toUpperCase() 
        }));
 
-       // Her coin ve zaman aralığı için en güncel veriyi al
        const uniqueMap = new Map();
        normalizedData.forEach(item => {
            const key = `${item.coin_adi}-${item.zaman_araligii}`;
@@ -152,7 +149,6 @@ export default function Dashboard() {
     loadHist();
   }, [selectedCoin]);
 
-  // Header Ticker (Aktif coinin verisi)
   const headerTicker = data.find(i => i.coin_adi === activeTab && i.zaman_araligii === '24 Saat') 
                        || data.find(i => i.coin_adi === activeTab);
 
@@ -160,11 +156,11 @@ export default function Dashboard() {
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} flex overflow-hidden transition-colors duration-500 font-sans`}>
-      {/* SIDEBAR */}
+      {/* SIDEBAR - MOBİLDE GİZLENDİ (hidden md:flex) */}
       <aside 
         onMouseEnter={() => setSidebarOpen(true)} 
         onMouseLeave={() => setSidebarOpen(false)} 
-        className={`${isSidebarOpen ? 'w-64' : 'w-20'} ${theme.sidebarBg} border-r ${theme.border} transition-all duration-300 flex flex-col fixed h-full z-40 shadow-2xl`}
+        className={`hidden md:flex ${isSidebarOpen ? 'w-64' : 'w-20'} ${theme.sidebarBg} border-r ${theme.border} transition-all duration-300 flex-col fixed h-full z-40 shadow-2xl`}
       >
         <div className={`h-24 flex items-center px-6 border-b ${theme.border} ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
           {isSidebarOpen ? (
@@ -192,23 +188,32 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'} relative`}>
+      {/* MAIN CONTENT - MOBILDE MARGIN SIFIRLANDI (ml-0 md:ml-20) */}
+      <main className={`flex-1 transition-all duration-300 ml-0 md:${isSidebarOpen ? 'ml-64' : 'ml-20'} relative`}>
         {/* HEADER */}
-        <header className={`h-24 border-b ${theme.border} sticky top-0 z-30 px-8 flex items-center justify-between backdrop-blur-xl ${theme.sidebarBg}/80`}>
-          <div className={`flex items-center gap-3 ${theme.inputBg} px-4 py-2 rounded-xl border ${theme.border} w-[320px]`}>
+        <header className={`h-20 md:h-24 border-b ${theme.border} sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between backdrop-blur-xl ${theme.sidebarBg}/80`}>
+          
+          {/* Arama Kutusu - Mobilde Gizledik */}
+          <div className={`hidden md:flex items-center gap-3 ${theme.inputBg} px-4 py-2 rounded-xl border ${theme.border} w-[320px]`}>
             <Search size={16} className={theme.textMuted} />
             <input type="text" placeholder="Search metrics..." className="bg-transparent border-none outline-none text-sm w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
           
-          <div className="flex items-center gap-6">
+          {/* Mobil Başlık (Logo ve İsim) - Sadece Mobilde Görünür */}
+          <div className="md:hidden flex items-center gap-2">
+              <VstrLogo className="w-6 h-6 text-emerald-500" />
+              <span className="font-bold text-sm">VESTRA</span>
+          </div>
+
+          <div className="flex items-center gap-3 md:gap-6">
             {headerTicker ? (
-              <div className="flex items-center gap-4 px-5 py-2.5 rounded-full border border-white/5 bg-emerald-500/[0.03] shadow-sm animate-in fade-in">
-                <div className="flex items-center gap-2 border-r pr-4 border-white/5 opacity-60">
+              <div className="flex items-center gap-4 px-3 py-2 md:px-5 md:py-2.5 rounded-full border border-white/5 bg-emerald-500/[0.03] shadow-sm animate-in fade-in">
+                <div className="hidden md:flex items-center gap-2 border-r pr-4 border-white/5 opacity-60">
                    {activeTab === 'VSTR' ? <VstrLogo className="w-4 h-4 text-emerald-500" /> : <OrtaLogo className="w-4 h-4 text-emerald-500" />}
                    <span className="text-[10px] font-black uppercase tracking-tighter">{activeTab} LIVE</span>
                 </div>
                 <div className="flex flex-col items-end">
-                   <span className="text-sm font-black font-mono leading-none tracking-tighter">{formatCurrency(headerTicker.fiyat)}</span>
+                   <span className="text-xs md:text-sm font-black font-mono leading-none tracking-tighter">{formatCurrency(headerTicker.fiyat)}</span>
                    <span className={`text-[9px] font-bold ${getTrendStatus(headerTicker.degisim_yuzdesi).color}`}>{getTrendStatus(headerTicker.degisim_yuzdesi).sign}{formatPercent(headerTicker.degisim_yuzdesi)}</span>
                 </div>
               </div>
@@ -217,53 +222,57 @@ export default function Dashboard() {
                    <div className="h-4 w-20 bg-white/10 rounded animate-pulse"></div>
                 </div>
             )}
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${theme.border} ${theme.inputBg}`}><div className={`w-1.5 h-1.5 rounded-full ${latency < 300 ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></div><span className="text-[10px] font-mono font-bold">{latency}ms</span><Server size={14} className={theme.textMuted} /></div>
+            {/* Latency - Mobilde Gizledik */}
+            <div className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border ${theme.border} ${theme.inputBg}`}><div className={`w-1.5 h-1.5 rounded-full ${latency < 300 ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></div><span className="text-[10px] font-mono font-bold">{latency}ms</span><Server size={14} className={theme.textMuted} /></div>
           </div>
         </header>
 
-        <div className="p-10 max-w-[1600px] mx-auto">
-          <div className="mb-10 animate-in slide-in-from-left-4 duration-500">
-            <h1 className="text-4xl font-black tracking-tight uppercase mb-2">{activeTab} ANALYTICS</h1>
-            <p className={`${theme.textMuted} text-sm font-medium uppercase tracking-tighter`}>Real-time system pulse from Vestra ecosystem.</p>
+        {/* MOBIL TAB MENÜSÜ (YENİ) - Sadece Mobilde Çıkar */}
+        <div className="md:hidden grid grid-cols-2 gap-2 px-4 py-4 border-b border-white/5">
+            <button onClick={() => setActiveTab('VSTR')} className={`py-2 rounded-lg text-xs font-bold border transition-all ${activeTab === 'VSTR' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 'bg-white/5 border-transparent opacity-50'}`}>VSTR</button>
+            <button onClick={() => setActiveTab('ORTA')} className={`py-2 rounded-lg text-xs font-bold border transition-all ${activeTab === 'ORTA' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 'bg-white/5 border-transparent opacity-50'}`}>ORTA</button>
+        </div>
+
+        <div className="p-4 md:p-10 max-w-[1600px] mx-auto">
+          <div className="mb-6 md:mb-10 animate-in slide-in-from-left-4 duration-500">
+            <h1 className="text-2xl md:text-4xl font-black tracking-tight uppercase mb-2">{activeTab} ANALYTICS</h1>
+            <p className={`${theme.textMuted} text-xs md:text-sm font-medium uppercase tracking-tighter`}>Real-time system pulse from Vestra ecosystem.</p>
           </div>
           
-          {/* ARTIK VSTR İÇİN DE BU GRID AÇILIYOR! */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* GRID: Mobilde 1 Sütun, PC'de 3 Sütun */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             {FIXED_INTERVALS.map((interval) => {
-              // Hangi sekmedeysek (VSTR/ORTA) onun verisini bul
               const item = data.find(d => d.coin_adi === activeTab && d.zaman_araligii === interval);
               
               if (item) {
-                  // VERİ VARSA: DOLU KART
                   const s = getTrendStatus(item.degisim_yuzdesi);
                   return (
-                    <div key={interval} onClick={() => setSelectedCoin(item)} className={`group ${theme.cardBg} border ${theme.border} rounded-3xl p-8 hover:shadow-2xl transition-all duration-500 cursor-pointer relative overflow-hidden`}>
-                      <div className="flex justify-between items-start mb-10">
+                    <div key={interval} onClick={() => setSelectedCoin(item)} className={`group ${theme.cardBg} border ${theme.border} rounded-3xl p-6 md:p-8 hover:shadow-2xl transition-all duration-500 cursor-pointer relative overflow-hidden`}>
+                      <div className="flex justify-between items-start mb-6 md:mb-10">
                         <div className={`${theme.inputBg} px-4 py-1.5 rounded-lg border ${theme.border}`}><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{interval}</span></div>
                         <div className={`p-2 ${theme.inputBg} rounded-lg group-hover:bg-emerald-500 group-hover:text-black transition-all`}><s.icon size={20} /></div>
                       </div>
-                      <div className="mb-8"><div className={`text-6xl font-mono font-black tracking-tighter ${s.color}`}>{s.sign}{formatPercent(item.degisim_yuzdesi)}</div></div>
-                      <div className={`border-t ${theme.border} pt-6 flex items-center gap-4`}>
+                      <div className="mb-6 md:mb-8"><div className={`text-5xl md:text-6xl font-mono font-black tracking-tighter ${s.color}`}>{s.sign}{formatPercent(item.degisim_yuzdesi)}</div></div>
+                      <div className={`border-t ${theme.border} pt-4 md:pt-6 flex items-center gap-4`}>
                         <div className={`w-3 h-3 rounded-full ${s.bg} shadow-[0_0_10px_currentColor]`} />
-                        <p className="text-sm italic opacity-60 line-clamp-1 flex-1">"{item.ai_yorumu}"</p>
+                        <p className="text-xs md:text-sm italic opacity-60 line-clamp-1 flex-1">"{item.ai_yorumu}"</p>
                       </div>
                     </div>
                   );
               } else {
-                  // VERİ YOKSA: BOŞ KART (YER TUTUCU)
                   return (
-                    <div key={interval} className={`group ${theme.cardBg} border ${theme.border} rounded-3xl p-8 opacity-30 cursor-not-allowed relative overflow-hidden`}>
-                       <div className="flex justify-between items-start mb-10">
+                    <div key={interval} className={`group ${theme.cardBg} border ${theme.border} rounded-3xl p-6 md:p-8 opacity-30 cursor-not-allowed relative overflow-hidden`}>
+                        <div className="flex justify-between items-start mb-6 md:mb-10">
                         <div className={`${theme.inputBg} px-4 py-1.5 rounded-lg border ${theme.border}`}><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{interval}</span></div>
                         <div className={`p-2 ${theme.inputBg} rounded-lg`}><Activity size={20} /></div>
                       </div>
-                      <div className="mb-8 flex flex-col gap-2">
+                      <div className="mb-6 md:mb-8 flex flex-col gap-2">
                           <div className="text-4xl font-mono font-black tracking-tighter opacity-20">--.--%</div>
                           <span className="text-[10px] uppercase font-bold tracking-widest opacity-40 flex items-center gap-2"><AlertCircle size={12}/> Syncing...</span>
                       </div>
-                      <div className={`border-t ${theme.border} pt-6 flex items-center gap-4`}>
+                      <div className={`border-t ${theme.border} pt-4 md:pt-6 flex items-center gap-4`}>
                         <div className="w-3 h-3 rounded-full bg-slate-500/20" />
-                        <p className="text-sm italic opacity-30">Waiting for data stream...</p>
+                        <p className="text-xs md:text-sm italic opacity-30">Waiting for data stream...</p>
                       </div>
                     </div>
                   );
@@ -273,39 +282,39 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* MODAL */}
+      {/* MODAL - Responsive Yapıldı */}
       {selectedCoin && (
         <div className={`fixed inset-0 z-[100] flex items-center justify-center ${theme.modalBg} backdrop-blur-md p-4 animate-in fade-in duration-300`}>
           <div className="absolute inset-0" onClick={() => setSelectedCoin(null)}></div>
-          <div className={`${darkMode ? 'bg-[#080808]' : 'bg-white'} border ${theme.border} w-full max-w-6xl rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10 flex flex-col lg:flex-row max-h-[90vh]`}>
-            <button onClick={() => setSelectedCoin(null)} className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:text-rose-500 transition-all z-20"><X size={24}/></button>
-            <div className="p-10 lg:w-1/3 border-r border-white/5 flex flex-col justify-between">
+          <div className={`${darkMode ? 'bg-[#080808]' : 'bg-white'} border ${theme.border} w-full max-w-6xl rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl relative z-10 flex flex-col lg:flex-row max-h-[85vh] md:max-h-[90vh] overflow-y-auto`}>
+            <button onClick={() => setSelectedCoin(null)} className="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-full bg-white/5 hover:text-rose-500 transition-all z-20"><X size={24}/></button>
+            <div className="p-6 md:p-10 lg:w-1/3 border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col justify-between">
                <div>
-                  <div className="flex items-center gap-4 mb-10">
-                      <div className="w-16 h-16 rounded-2xl border border-emerald-500/20 flex items-center justify-center bg-emerald-500/5">
-                          {selectedCoin.coin_adi === 'VSTR' ? <VstrLogo className="w-8 h-8 text-emerald-500"/> : <OrtaLogo className="w-8 h-8 text-emerald-500"/>}
+                  <div className="flex items-center gap-4 mb-6 md:mb-10">
+                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl border border-emerald-500/20 flex items-center justify-center bg-emerald-500/5">
+                          {selectedCoin.coin_adi === 'VSTR' ? <VstrLogo className="w-6 h-6 md:w-8 md:h-8 text-emerald-500"/> : <OrtaLogo className="w-6 h-6 md:w-8 md:h-8 text-emerald-500"/>}
                       </div>
                       <div>
-                        <h2 className="text-2xl font-black tracking-tight uppercase leading-none">{selectedCoin.coin_adi}</h2>
+                        <h2 className="text-xl md:text-2xl font-black tracking-tight uppercase leading-none">{selectedCoin.coin_adi}</h2>
                         <div className="text-[10px] font-mono uppercase tracking-widest opacity-40 mt-2">{selectedCoin.zaman_araligii} DATA</div>
                       </div>
                   </div>
-                  <div className="space-y-8">
-                      <div><div className="text-[10px] uppercase font-bold tracking-widest opacity-30 mb-2 font-mono">SPOT VALUATION</div><div className="text-4xl font-mono font-black tracking-tighter leading-none">{formatCurrency(selectedCoin.fiyat)}</div></div>
-                      <div className={`p-6 rounded-2xl border ${getTrendStatus(selectedCoin.degisim_yuzdesi).color.replace('text', 'border')}/20 bg-white/[0.02]`}>
-                          <div className={`text-4xl font-black tracking-tighter ${getTrendStatus(selectedCoin.degisim_yuzdesi).color}`}>{getTrendStatus(selectedCoin.degisim_yuzdesi).sign}{formatPercent(selectedCoin.degisim_yuzdesi)}</div>
+                  <div className="space-y-6 md:space-y-8">
+                      <div><div className="text-[10px] uppercase font-bold tracking-widest opacity-30 mb-2 font-mono">SPOT VALUATION</div><div className="text-3xl md:text-4xl font-mono font-black tracking-tighter leading-none">{formatCurrency(selectedCoin.fiyat)}</div></div>
+                      <div className={`p-4 md:p-6 rounded-2xl border ${getTrendStatus(selectedCoin.degisim_yuzdesi).color.replace('text', 'border')}/20 bg-white/[0.02]`}>
+                          <div className={`text-3xl md:text-4xl font-black tracking-tighter ${getTrendStatus(selectedCoin.degisim_yuzdesi).color}`}>{getTrendStatus(selectedCoin.degisim_yuzdesi).sign}{formatPercent(selectedCoin.degisim_yuzdesi)}</div>
                       </div>
                   </div>
                </div>
-               <div className="mt-10 bg-white/[0.02] p-6 rounded-2xl border border-white/5 shadow-xl shadow-black/20"><div className="flex items-center gap-3 mb-4"><Activity size={16} className="text-emerald-500" /><span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30">AI Analysis</span></div><p className="text-sm italic opacity-70 leading-relaxed font-medium">"{selectedCoin.ai_yorumu}"</p></div>
+               <div className="mt-6 md:mt-10 bg-white/[0.02] p-4 md:p-6 rounded-2xl border border-white/5 shadow-xl shadow-black/20"><div className="flex items-center gap-3 mb-4"><Activity size={16} className="text-emerald-500" /><span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30">AI Analysis</span></div><p className="text-xs md:text-sm italic opacity-70 leading-relaxed font-medium">"{selectedCoin.ai_yorumu}"</p></div>
             </div>
 
-            <div className={`p-10 lg:w-2/3 ${darkMode ? 'bg-[#050505]' : 'bg-slate-50'} flex flex-col`}>
-               <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-sm font-black opacity-30 flex items-center gap-2 uppercase tracking-widest font-mono"><Clock size={16}/> LINEAR HORIZON</h3>
+            <div className={`p-6 md:p-10 lg:w-2/3 ${darkMode ? 'bg-[#050505]' : 'bg-slate-50'} flex flex-col h-[400px] lg:h-auto`}>
+               <div className="flex justify-between items-center mb-4 md:mb-8">
+                  <h3 className="text-xs md:text-sm font-black opacity-30 flex items-center gap-2 uppercase tracking-widest font-mono"><Clock size={16}/> LINEAR HORIZON</h3>
                   <div className="text-[9px] px-4 py-2 rounded-full border border-white/10 font-bold opacity-40 uppercase font-mono tracking-widest bg-white/5">High-Precision Build</div>
                </div>
-               <div className="flex-1 h-[300px]">
+               <div className="flex-1 min-h-[250px]">
                   {chartLoading ? <div className="h-full flex items-center justify-center"><RefreshCcw className="animate-spin text-emerald-500" size={32} /></div> :
                    chartHistory.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
@@ -331,4 +340,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
