@@ -69,7 +69,7 @@ export default function Dashboard() {
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [chartHistory, setChartHistory] = useState([]);
   const [chartLoading, setChartLoading] = useState(false);
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(false); // Default kapalı başlasın, PC'de hover açacak
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState('VSTR'); 
   const [darkMode, setDarkMode] = useState(true);
@@ -155,12 +155,14 @@ export default function Dashboard() {
   if (!mounted) return null;
 
   return (
-    <div className={`min-h-screen ${theme.bg} ${theme.text} flex overflow-hidden transition-colors duration-500 font-sans`}>
-      {/* SIDEBAR - MOBİLDE GİZLENDİ (hidden md:flex) */}
+    <div className={`min-h-screen ${theme.bg} ${theme.text} flex overflow-x-hidden font-sans`}>
+      
+      {/* --- SIDEBAR (PC İÇİN) --- */}
+      {/* Sadece MD (Medium) ve üzeri ekranlarda görünür (hidden md:flex) */}
       <aside 
         onMouseEnter={() => setSidebarOpen(true)} 
         onMouseLeave={() => setSidebarOpen(false)} 
-        className={`hidden md:flex ${isSidebarOpen ? 'w-64' : 'w-20'} ${theme.sidebarBg} border-r ${theme.border} transition-all duration-300 flex-col fixed h-full z-40 shadow-2xl`}
+        className={`hidden md:flex fixed top-0 left-0 h-full z-50 ${isSidebarOpen ? 'w-64' : 'w-20'} ${theme.sidebarBg} border-r ${theme.border} transition-all duration-300 flex-col shadow-2xl`}
       >
         <div className={`h-24 flex items-center px-6 border-b ${theme.border} ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
           {isSidebarOpen ? (
@@ -188,24 +190,27 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* MAIN CONTENT - MOBILDE MARGIN SIFIRLANDI (ml-0 md:ml-20) */}
-      <main className={`flex-1 transition-all duration-300 ml-0 md:${isSidebarOpen ? 'ml-64' : 'ml-20'} relative`}>
-        {/* HEADER */}
+      {/* --- ANA İÇERİK --- */}
+      {/* PC'de soldan boşluk bırakır (md:ml-20), Mobilde bırakmaz (ml-0) */}
+      <main className={`flex-1 transition-all duration-300 relative ml-0 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
+        
+        {/* --- HEADER --- */}
         <header className={`h-20 md:h-24 border-b ${theme.border} sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between backdrop-blur-xl ${theme.sidebarBg}/80`}>
           
-          {/* Arama Kutusu - Mobilde Gizledik */}
+          {/* PC Arama */}
           <div className={`hidden md:flex items-center gap-3 ${theme.inputBg} px-4 py-2 rounded-xl border ${theme.border} w-[320px]`}>
             <Search size={16} className={theme.textMuted} />
             <input type="text" placeholder="Search metrics..." className="bg-transparent border-none outline-none text-sm w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
           
-          {/* Mobil Başlık (Logo ve İsim) - Sadece Mobilde Görünür */}
+          {/* MOBİL LOGO (Sadece mobilde görünür) */}
           <div className="md:hidden flex items-center gap-2">
               <VstrLogo className="w-6 h-6 text-emerald-500" />
-              <span className="font-bold text-sm">VESTRA</span>
+              <span className="font-bold text-lg tracking-tight">VESTRA</span>
           </div>
 
           <div className="flex items-center gap-3 md:gap-6">
+            {/* Ticker Kısmı */}
             {headerTicker ? (
               <div className="flex items-center gap-4 px-3 py-2 md:px-5 md:py-2.5 rounded-full border border-white/5 bg-emerald-500/[0.03] shadow-sm animate-in fade-in">
                 <div className="hidden md:flex items-center gap-2 border-r pr-4 border-white/5 opacity-60">
@@ -222,18 +227,23 @@ export default function Dashboard() {
                    <div className="h-4 w-20 bg-white/10 rounded animate-pulse"></div>
                 </div>
             )}
-            {/* Latency - Mobilde Gizledik */}
+            
+            {/* PC Latency */}
             <div className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border ${theme.border} ${theme.inputBg}`}><div className={`w-1.5 h-1.5 rounded-full ${latency < 300 ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></div><span className="text-[10px] font-mono font-bold">{latency}ms</span><Server size={14} className={theme.textMuted} /></div>
           </div>
         </header>
 
-        {/* MOBIL TAB MENÜSÜ (YENİ) - Sadece Mobilde Çıkar */}
-        <div className="md:hidden grid grid-cols-2 gap-2 px-4 py-4 border-b border-white/5">
-            <button onClick={() => setActiveTab('VSTR')} className={`py-2 rounded-lg text-xs font-bold border transition-all ${activeTab === 'VSTR' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 'bg-white/5 border-transparent opacity-50'}`}>VSTR</button>
-            <button onClick={() => setActiveTab('ORTA')} className={`py-2 rounded-lg text-xs font-bold border transition-all ${activeTab === 'ORTA' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 'bg-white/5 border-transparent opacity-50'}`}>ORTA</button>
+        {/* --- MOBİL TAB MENÜ (VSTR / ORTA) --- */}
+        {/* Sadece mobilde görünür (md:hidden) */}
+        <div className="md:hidden grid grid-cols-2 gap-2 px-4 py-4 border-b border-white/5 bg-black/20">
+            <button onClick={() => setActiveTab('VSTR')} className={`py-2 rounded-lg text-xs font-bold border transition-all ${activeTab === 'VSTR' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 'bg-white/5 border-transparent opacity-50'}`}>VSTR ANALYTICS</button>
+            <button onClick={() => setActiveTab('ORTA')} className={`py-2 rounded-lg text-xs font-bold border transition-all ${activeTab === 'ORTA' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' : 'bg-white/5 border-transparent opacity-50'}`}>ORTA ANALYTICS</button>
         </div>
 
+        {/* --- İÇERİK ALANI --- */}
+        {/* PC'de p-10 (Geniş), Mobilde p-4 (Dar) */}
         <div className="p-4 md:p-10 max-w-[1600px] mx-auto">
+          
           <div className="mb-6 md:mb-10 animate-in slide-in-from-left-4 duration-500">
             <h1 className="text-2xl md:text-4xl font-black tracking-tight uppercase mb-2">{activeTab} ANALYTICS</h1>
             <p className={`${theme.textMuted} text-xs md:text-sm font-medium uppercase tracking-tighter`}>Real-time system pulse from Vestra ecosystem.</p>
@@ -282,7 +292,7 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* MODAL - Responsive Yapıldı */}
+      {/* --- MODAL (POPUP) --- */}
       {selectedCoin && (
         <div className={`fixed inset-0 z-[100] flex items-center justify-center ${theme.modalBg} backdrop-blur-md p-4 animate-in fade-in duration-300`}>
           <div className="absolute inset-0" onClick={() => setSelectedCoin(null)}></div>
