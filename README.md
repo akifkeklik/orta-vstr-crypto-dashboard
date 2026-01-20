@@ -14,7 +14,6 @@ A full-stack, autonomous crypto analysis dashboard designed to monitor **Vestra 
 
 Unlike traditional dashboards that fetch data on client-side page loads, this system uses an **autonomous background pipeline**.
 
-```mermaid
 graph LR
 A[CoinGecko API] -- JSON Data --> B(n8n Automation / Railway)
 B -- Processed Data --> C[(Supabase PostgreSQL)]
