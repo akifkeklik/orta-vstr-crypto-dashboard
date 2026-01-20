@@ -2,88 +2,62 @@
 
 ![Project Status](https://img.shields.io/badge/status-active-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Tech](https://img.shields.io/badge/built%20with-Next.js%20%7C%20Supabase%20%7C%20n8n-black)
+![Tech](https://img.shields.io/badge/stack-Next.js_|_Supabase_|_n8n-black)
 
-A full-stack, autonomous crypto analysis dashboard designed to monitor **Vestra DAO (VSTR)** and **Orta (ORTA)** tokens in real-time. This project demonstrates a complete **Modern Data Stack** implementation, moving beyond simple API calls to a self-hosted, automated cloud architecture.
+An autonomous, real-time crypto analysis dashboard designed to monitor **Vestra DAO (VSTR)** and **Orta (ORTA)** tokens. This project demonstrates a complete **Modern Data Stack** implementation, featuring a self-hosted cloud pipeline rather than simple client-side API calls.
 
-🔗 **Live Demo:** [Click Here to View Dashboard](https://orta-vstr-crypto-dashboard-qgh2.vercel.app/)
+🔗 **Live Demo:** [View Dashboard](https://orta-vstr-crypto-dashboard-qgh2.vercel.app/)
 
 ---
 
 ## 🏗️ System Architecture
 
-Unlike traditional dashboards that fetch data on client-side page loads, this system uses an **autonomous background pipeline**.
+The system operates on a 24/7 autonomous cycle, ensuring data persistence and historical analysis.
 
+```mermaid
 graph LR
-A[CoinGecko API] -- JSON Data --> B(n8n Automation / Railway)
-B -- Processed Data --> C[(Supabase PostgreSQL)]
-C -- Real-time WebSocket --> D[Next.js Dashboard]
-Data Ingestion: Self-hosted n8n workflows (running on Railway via Docker) query the CoinGecko API every 30 seconds.
+A[CoinGecko API] -->|JSON| B(n8n Automation / Railway)
+B -->|Processed Data| C[(Supabase PostgreSQL)]
+C -->|Real-time WebSocket| D[Next.js Dashboard]
+Ingest: n8n robots (Dockerized on Railway) fetch market data every 30 seconds.
 
-Storage: Processed market data is stored in Supabase (PostgreSQL).
+Store: Data is normalized and stored in Supabase (PostgreSQL).
 
-Real-Time Delivery: The frontend subscribes to database changes via Supabase Realtime, updating the UI instantly without page refreshes.
+Serve: Frontend receives live updates via Supabase Realtime (WebSockets).
 
 🛠️ Tech Stack
-Frontend: Next.js 14 (App Router), Tailwind CSS, Recharts, Framer Motion.
+Frontend: Next.js 14 (App Router), Tailwind CSS, Recharts.
 
-Backend / Database: Supabase (PostgreSQL + Realtime).
+Backend: Supabase (PostgreSQL + Realtime).
 
-DevOps / Automation: n8n (Self-Hosted on Railway), Docker.
+Automation: n8n (Self-Hosted Workflow Automation).
 
-Infrastructure: Railway (Cloud Hosting), Vercel (Frontend Deployment).
-
-Data Source: CoinGecko API.
+Infrastructure: Railway (Cloud Hosting), Vercel.
 
 🚀 Features
-✅ Autonomous Data Pipeline: Runs 24/7 on the cloud, independent of local machines.
+✅ Zero-Downtime Pipeline: Runs independently of local machines.
 
-✅ Live Price Updates: WebSocket integration for instant price reflection.
+✅ Live Updates: Instant price reflection without page refreshes.
 
-✅ Time-Series Analysis: Dynamic filtering (1H, 24H, 7D) for historical data visualization.
+✅ Historical Data: Dynamic time-series visualization (1H, 24H, 7D).
 
-✅ Modern UI: Glassmorphism design with responsive "Bento Grid" layout.
+✅ Responsive UI: Modern "Bento Grid" layout with Glassmorphism.
 
-📦 Getting Started (Local Development)
-To run this project locally:
-
-Clone the repository:
-
+📦 Getting Started
 Bash
+# 1. Clone the repository
 git clone [https://github.com/akifkeklik/orta-vstr-crypto-dashboard.git](https://github.com/akifkeklik/orta-vstr-crypto-dashboard.git)
-cd orta-vstr-crypto-dashboard
-Install dependencies:
 
-Bash
+# 2. Install dependencies
 npm install
-Set up Environment Variables: Create a .env.local file in the root directory and add your Supabase credentials:
 
-Kod snippet'i
+# 3. Set up environment variables (.env.local)
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-Run the development server:
 
-Bash
+# 4. Run the development server
 npm run dev
-Open http://localhost:3000 with your browser to see the result.
-
-🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 📝 License
-This project is open-source and available under the MIT License.
+Distributed under the MIT License. See LICENSE for more information.
 
-Developed by Akif Keklik.
-
-
-### 🎯 Yapman Gerekenler:
-
-1.  Proje klasöründeki `README.md` dosyasını aç.
-2.  İçindeki her şeyi sil.
-3.  Yukarıdaki kodu yapıştır.
-4.  Kaydet ve terminalden şu komutları gir:
-
-```bash
-git add README.md
-git commit -m "docs: update readme with system architecture"
-git push origin main
+Developed by Akif Keklik
