@@ -1,5 +1,3 @@
-📄 README.md Taslağı (Kopyala ve Yapıştır)
-Markdown
 # 📊 Vestra & Orta Real-Time Analytics Dashboard
 
 ![Project Status](https://img.shields.io/badge/status-active-success.svg)
