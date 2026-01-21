@@ -207,7 +207,7 @@ export default function Dashboard() {
           ...item,
           coin_adi: cleanName,
         };
-      }); 
+      });
 
       const uniqueMap = new Map();
       normalizedData.forEach((item) => {
