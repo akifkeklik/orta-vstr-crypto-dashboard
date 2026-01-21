@@ -187,7 +187,7 @@ export default function Dashboard() {
       .from("kripto_analiz")
       .select("*")
       .order("id", { ascending: false })
-      .limit(100);
+      .limit(50);
 
     // DEBUGGING (Hata Ayıklama)
     if (error) {
