@@ -86,9 +86,7 @@ const OrtaLogo = ({ className }) => (
 
 // --- DÜZELTİLMİŞ MANTIK ---
 const getTrendStatus = (v) => {
-  const n = parseFloat(v); // String gelirse sayıya çevir
-
-  // Eğer sayı değilse veya 0 ise nötr döndür
+  const n = parseFloat(v);
   if (isNaN(n) || n === 0)
     return {
       color: "text-amber-400",
@@ -97,8 +95,6 @@ const getTrendStatus = (v) => {
       icon: Minus,
       bg: "bg-amber-400",
     };
-
-  // Pozitif Durum
   if (n > 0)
     return {
       color: "text-emerald-500",
@@ -107,8 +103,6 @@ const getTrendStatus = (v) => {
       icon: TrendingUp,
       bg: "bg-emerald-500",
     };
-
-  // Negatif Durum (Buraya 'sign: -' ekledik ki formatPercent eksiği sildiğinde biz geri koyalım)
   return {
     color: "text-rose-500",
     hex: "#f43f5e",
@@ -125,7 +119,6 @@ const formatCurrency = (v) =>
     minimumFractionDigits: 4,
   }).format(v);
 
-// Mutlak değer alıyoruz ama getTrendStatus artık işareti yönetiyor
 const formatPercent = (v) => Math.abs(Number(v)).toFixed(2) + "%";
 
 const getPeriodMs = (label) => {
@@ -148,7 +141,6 @@ const smartTickFormatter = (ts, periodLabel) => {
   return date.toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
 };
 
-// SABİT 6 KART KURALI
 const FIXED_INTERVALS = [
   "1 Saat",
   "24 Saat",
@@ -189,24 +181,28 @@ export default function Dashboard() {
   );
 
   const fetchData = async () => {
-    const { data: raw } = await supabase
+    // --- YASIR HOCA OPTIMIZASYONU ---
+    // .limit(100) ekledik. Artık 1000 satır değil, son 100 satır geliyor.
+    const { data: raw, error } = await supabase
       .from("kripto_analiz")
       .select("*")
-      .order("id", { ascending: false });
+      .order("id", { ascending: false })
+      .limit(100);
+
+    // DEBUGGING (Hata Ayıklama)
+    if (error) {
+      console.error("SUPABASE ERROR:", error.message);
+    } else if (raw) {
+      // console.log("Gelen Veri Sayısı:", raw.length); // Konsolu kirletmesin diye kapattım
+    }
 
     if (raw) {
       const normalizedData = raw.map((item) => {
         let cleanName = (item.coin_adi || "").toUpperCase();
-        // Veritabanında "Orta Chain" yazsa bile biz onu "ORTA" yapacağız
         if (cleanName.includes("ORTA")) cleanName = "ORTA";
-        // Veritabanında "Vestra DAO" yazsa bile biz onu "VSTR" yapacağız
         if (cleanName.includes("VESTRA") || cleanName.includes("VSTR"))
           cleanName = "VSTR";
-
-        return {
-          ...item,
-          coin_adi: cleanName,
-        };
+        return { ...item, coin_adi: cleanName };
       });
 
       const uniqueMap = new Map();
@@ -216,7 +212,6 @@ export default function Dashboard() {
           uniqueMap.set(key, item);
         }
       });
-
       setData(Array.from(uniqueMap.values()));
     }
   };
@@ -224,6 +219,7 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData();
     const i1 = setInterval(fetchData, 5000);
+    // Latency testi için de ufak bir sorgu
     const i2 = setInterval(async () => {
       const s = Date.now();
       await supabase.from("kripto_analiz").select("id").limit(1);
@@ -248,7 +244,7 @@ export default function Dashboard() {
         .from("kripto_analiz")
         .select("created_at, fiyat, coin_adi")
         .gte("created_at", startTime)
-        .order("created_at", { ascending: true }); // Veritabanı sıralaması
+        .order("created_at", { ascending: true });
 
       if (hist) {
         const filteredHist = hist
@@ -256,7 +252,6 @@ export default function Dashboard() {
             (h) =>
               (h.coin_adi || "ORTA").toUpperCase() === selectedCoin.coin_adi,
           )
-          // İstemci tarafında garanti sıralama (Grafik hatasını önler)
           .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
         if (filteredHist.length > 0) {
@@ -283,7 +278,7 @@ export default function Dashboard() {
     <div
       className={`min-h-screen ${theme.bg} ${theme.text} flex overflow-x-hidden font-sans`}
     >
-      {/* --- SIDEBAR (PC İÇİN) --- */}
+      {/* SIDEBAR */}
       <aside
         onMouseEnter={() => setSidebarOpen(true)}
         onMouseLeave={() => setSidebarOpen(false)}
@@ -360,17 +355,15 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* --- ANA İÇERİK --- */}
+      {/* MAIN CONTENT */}
       <main
         className={`flex-1 transition-all duration-300 relative ml-0 ${
           isSidebarOpen ? "md:ml-64" : "md:ml-20"
         }`}
       >
-        {/* --- HEADER --- */}
         <header
           className={`h-20 md:h-24 border-b ${theme.border} sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between backdrop-blur-xl ${theme.sidebarBg}/80`}
         >
-          {/* PC Arama */}
           <div
             className={`hidden md:flex items-center gap-3 ${theme.inputBg} px-4 py-2 rounded-xl border ${theme.border} w-[320px]`}
           >
@@ -384,14 +377,12 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* MOBİL LOGO */}
           <div className="md:hidden flex items-center gap-2">
             <VstrLogo className="w-6 h-6 text-emerald-500" />
             <span className="font-bold text-lg tracking-tight">VESTRA</span>
           </div>
 
           <div className="flex items-center gap-3 md:gap-6">
-            {/* Ticker Kısmı */}
             {headerTicker ? (
               <div className="flex items-center gap-4 px-3 py-2 md:px-5 md:py-2.5 rounded-full border border-white/5 bg-emerald-500/[0.03] shadow-sm animate-in fade-in">
                 <div className="hidden md:flex items-center gap-2 border-r pr-4 border-white/5 opacity-60">
@@ -424,7 +415,6 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* PC Latency */}
             <div
               className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border ${theme.border} ${theme.inputBg}`}
             >
@@ -443,7 +433,6 @@ export default function Dashboard() {
           </div>
         </header>
 
-        {/* --- MOBİL TAB MENÜ --- */}
         <div className="md:hidden grid grid-cols-2 gap-2 px-4 py-4 border-b border-white/5 bg-black/20">
           <button
             onClick={() => setActiveTab("VSTR")}
@@ -467,7 +456,6 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* --- İÇERİK ALANI --- */}
         <div className="p-4 md:p-10 max-w-[1600px] mx-auto">
           <div className="mb-6 md:mb-10 animate-in slide-in-from-left-4 duration-500">
             <h1 className="text-2xl md:text-4xl font-black tracking-tight uppercase mb-2">
@@ -480,7 +468,6 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* GRID */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             {FIXED_INTERVALS.map((interval) => {
               const item = data.find(
@@ -572,7 +559,7 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* --- MODAL (POPUP) --- */}
+      {/* POPUP MODAL */}
       {selectedCoin && (
         <div
           className={`fixed inset-0 z-[100] flex items-center justify-center ${theme.modalBg} backdrop-blur-md p-4 animate-in fade-in duration-300`}
