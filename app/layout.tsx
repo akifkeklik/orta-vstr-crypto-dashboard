@@ -12,12 +12,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// --- BURASI SİTE İSMİNİ DEĞİŞTİREN KISIM ---
+// --- BURASI SEKME İSMİNİ BELİRLER ---
 export const metadata: Metadata = {
-  title: "CoinMeter Pro", // Sekmede görünecek isim
-  description: "Real-time professional crypto analytics dashboard.", // Google açıklaması
+  title: "CoinMeter Pro", // Sadece bunu istedin, tam olarak bu yazacak.
+  description: "Real-time professional crypto analytics dashboard.",
   icons: {
-    icon: "/favicon.ico", // Vercel varsayılan ikonu
+    icon: "/favicon.ico",
   },
 };
 
