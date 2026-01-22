@@ -12,13 +12,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// --- BAŞLIK AYARLARI (SEO & BRANDING) ---
+// --- BURASI SİTE İSMİNİ DEĞİŞTİREN KISIM ---
 export const metadata: Metadata = {
-  title: "CoinMeter Pro | Enterprise Terminal", // Sekmede görünecek isim
-  description:
-    "Real-time advanced crypto analytics for VSTR, ORTA, and Global Markets.", // Google açıklaması
+  title: "CoinMeter Pro", // Sekmede görünecek isim
+  description: "Real-time professional crypto analytics dashboard.", // Google açıklaması
   icons: {
-    icon: "/favicon.ico", // Vercel'e attığında favicon'un varsa burası da çalışır
+    icon: "/favicon.ico", // Vercel varsayılan ikonu
   },
 };
 
