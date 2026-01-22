@@ -1,66 +1,105 @@
-# 📊 Vestra & Orta Real-Time Analytics Dashboard
+# 📊 Vestra & Orta – Real-Time Crypto Analytics Dashboard
 
 ![Status](https://img.shields.io/badge/Status-Live-success)
 ![Stack](https://img.shields.io/badge/Stack-Next.js_|_Supabase_|_n8n-black)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-A full-stack, autonomous crypto analysis dashboard designed to monitor **Vestra DAO (VSTR)** and **Orta (ORTA)** tokens in real-time. This project demonstrates a complete **Modern Data Stack** implementation, moving beyond simple API calls to a self-hosted, automated cloud architecture.
+A full-stack, autonomous crypto analytics platform designed to monitor  
+**Vestra DAO (VSTR)** and **Orta (ORTA)** tokens in real time.
 
-🔗 **Live Demo:** [Click Here to View Dashboard](https://orta-vstr-crypto-dashboard-qgh2.vercel.app/)
+This project demonstrates a complete **Modern Data Stack** implementation — moving beyond simple client-side API calls into a fully automated, event-driven cloud architecture.
+
+🔗 **Live Demo:**  
+👉 https://orta-vstr-crypto-dashboard-qgh2.vercel.app/
 
 ---
 
-## 🏗️ System Architecture & Workflow
+## 🧠 System Architecture
 
-Unlike traditional dashboards that fetch data on client-side page loads, this system uses an **autonomous background pipeline**.
+Unlike traditional dashboards that fetch data directly from the browser, this system operates as a fully autonomous background pipeline.
 
-**The Data Journey:**
-1.  🤖 **Ingest (n8n & Railway):** Self-hosted robots wake up every 30 seconds to fetch global market data from CoinGecko API.
-2.  💾 **Store (Supabase):** Raw data is normalized, processed, and securely stored in a PostgreSQL database.
-3.  ⚡ **Serve (Realtime):** The Next.js frontend subscribes to database changes via WebSockets, updating prices instantly without page refreshes.
+### 🔄 Data Flow
+
+1. 🤖 **Ingest – n8n (Self-Hosted on Railway)**  
+   Background workers periodically fetch market data from the CoinGecko API.
+
+2. 💾 **Store – Supabase (PostgreSQL + Realtime)**  
+   Data is normalized, processed, and securely stored.
+
+3. ⚡ **Stream – WebSockets (Realtime Subscriptions)**  
+   Frontend automatically receives updates without refresh.
+
+4. 🌐 **Serve – Next.js (Vercel)**  
+   Optimized SSR + API proxy layer with caching and rate-limit protection.
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Frontend:** Next.js 14 (App Router), Tailwind CSS, Recharts
-* **Backend:** Supabase (PostgreSQL + Realtime Engine)
-* **DevOps:** n8n (Self-Hosted Workflow Automation), Docker
-* **Infrastructure:** Railway (Cloud Hosting), Vercel
+**Frontend**
+- Next.js 14 (App Router)
+- Tailwind CSS
+- Recharts
+
+**Backend**
+- Supabase (PostgreSQL, Realtime Engine)
+
+**Automation & DevOps**
+- n8n (Workflow Automation)
+- Docker
+- Railway (Cloud Workers)
+- Vercel (Frontend Hosting)
 
 ---
 
 ## 🚀 Key Features
 
-* ✅ **Autonomous Pipeline:** Runs 24/7 on the cloud, independent of local machines.
-* ✅ **Zero Latency:** WebSocket integration for instant price reflection.
-* ✅ **Time-Series Analysis:** Dynamic filtering (1H, 24H, 7D) for historical trends.
-* ✅ **Modern UI:** Glassmorphism design with a responsive "Bento Grid" layout.
+- ✅ Autonomous Data Pipeline – Runs 24/7 independently of local machines  
+- ✅ Realtime Updates – Instant price updates via WebSockets  
+- ✅ Historical Analytics – Time-series filtering (1H, 24H, 7D, etc.)  
+- ✅ API Proxy & Caching Layer – Server-side CoinGecko proxy with ISR  
+- ✅ Modern UI/UX – Glassmorphism + responsive Bento layout  
+- ✅ Production Ready Architecture – CI/CD enabled deployment  
 
 ---
 
-## 📦 Getting Started (Local Development)
+## 📦 Local Development
 
-To run this project locally:
+### 1️⃣ Clone the repository
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/akifkeklik/orta-vstr-crypto-dashboard.git
-
-# 2. Install dependencies
+cd orta-vstr-crypto-dashboard
+2️⃣ Install dependencies
+bash
+Kodu kopyala
 npm install
+3️⃣ Create environment variables
+Create a .env.local file:
 
-# 3. Create .env.local file and add Supabase keys
-# NEXT_PUBLIC_SUPABASE_URL=...
-# NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-
-# 4. Run the development server
+env
+Kodu kopyala
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_public_key
+4️⃣ Start development server
+bash
+Kodu kopyala
 npm run dev
+Open in browser:
+👉 http://localhost:3000
+
+☁️ Deployment Notes (Vercel)
+This project requires the following environment variables to be configured in Vercel:
+
+nginx
+Kodu kopyala
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+After adding or updating environment variables, a Redeploy must be triggered manually.
 
 🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome.
+Please open an issue or submit a pull request.
 
 📝 License
-This project is open-source and available under the MIT License.
-
-Developed by Akif Keklik
+MIT License.
